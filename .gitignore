@@ -1,9 +1,9 @@
 # vtorcs stuff
-vtorcs-RL-color/*
+vtorcs-RL-color/**
 
 # my agents
 run_ddpg.py
-agents/*
+agents/**
 
 # Prerequisites
 *.d
