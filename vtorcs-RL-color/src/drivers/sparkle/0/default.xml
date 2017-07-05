@@ -1,16 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-    file        : baja-bug.xml
-    created     : Fri Nov 22 20:55:46 CET 2002
-    copyright   : (C) 2002 by Eric Espié                         
-    email       : berniw@bluewin.ch
-    version     : $Id: default.xml,v 1.2 2003/08/13 00:03:15 berniw Exp $
--->
-
-<!--    This program is free software; you can redistribute it and/or modify  -->
-<!--    it under the terms of the GNU General Public License as published by  -->
-<!--    the Free Software Foundation; either version 2 of the License, or     -->
-<!--    (at your option) any later version.                                   -->
 
 <!DOCTYPE params SYSTEM "../../../../src/libs/tgf/params.dtd">
 

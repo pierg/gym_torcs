@@ -1,16 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-    file                 : g-track-2.xml
-    created              : Sun Mar 19 00:18:38 CET 2000
-    copyright            : (C) 2000 C. Guionneau
-    email                : torcs@free.fr   
-    version              : $Id: g-track-2.xml,v 1.9 2005/03/23 22:04:03 berniw Exp $                                  
--->
-
-<!--    This program is free software; you can redistribute it and/or modify  -->
-<!--    it under the terms of the GNU General Public License as published by  -->
-<!--    the Free Software Foundation; either version 2 of the License, or     -->
-<!--    (at your option) any later version.                                   -->
 
 <!DOCTYPE params SYSTEM "../../../../src/libs/tgf/params.dtd" [
 <!-- general definitions for tracks -->

@@ -1,16 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-    file                 : torcs-f-b.xml
-    created              : Sat Mar 18 22:58:22 CET 2000
-    copyright            : (C) 2000 by Eric Espie                         
-    email                : torcs@free.fr   
-    version              : $Id: default.xml,v 1.1.2.1 2008/05/31 11:27:05 berniw Exp $                                  
--->
-
-<!--    This program is free software; you can redistribute it and/or modify  -->
-<!--    it under the terms of the GNU General Public License as published by  -->
-<!--    the Free Software Foundation; either version 2 of the License, or     -->
-<!--    (at your option) any later version.                                   -->
 
 <!DOCTYPE params SYSTEM "../../../../src/libs/tgf/params.dtd">
 

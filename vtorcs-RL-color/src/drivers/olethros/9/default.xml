@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!-- 
-    file                 : car1-trb3.xml
-    created              : Sun Jan 13 09:42:04 CET 2002
-    copyright            : (C) 2001 by Eric Espié
-    email                : Eric.Espie@torcs.org 
-    version              : $Id: default.xml,v 1.7.2.1 2008/05/30 23:18:15 berniw Exp $
--->
-
-<!--    This program is free software; you can redistribute it and/or modify  -->
-
-<!--    it under the terms of the GNU General Public License as published by  -->
-
-<!--    the Free Software Foundation; either version 2 of the License, or     -->
-
-<!--    (at your option) any later version.                                   -->
 <!DOCTYPE params SYSTEM "../../../../src/libs/tgf/params.dtd">
 
 <params name="car1-trb3" type="template">

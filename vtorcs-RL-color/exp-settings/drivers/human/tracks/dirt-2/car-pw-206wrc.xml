@@ -1,17 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-    file                 : 206W10.xml
-    created              : Sat Mar 18 23:03:59 CET 2000
-    copyright            : (C) 2000 by Eric Espie                         
-    email                : torcs@free.fr   
-    version              : $Id: car-pw-206wrc.xml,v 1.1 2004/01/18 15:24:09 torcs Exp $                                  
--->
-
-<!--    This program is free software; you can redistribute it and/or modify  -->
-<!--    it under the terms of the GNU General Public License as published by  -->
-<!--    the Free Software Foundation; either version 2 of the License, or     -->
-<!--    (at your option) any later version.                                   -->
-
 <!DOCTYPE params SYSTEM "../../../../src/libs/tgf/params.dtd">
 
 <params name="" type="template">
