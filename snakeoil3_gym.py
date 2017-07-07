@@ -129,6 +129,7 @@ class Client():
         self.debug= False
         self.maxSteps= 100000  # 50steps/second
         self.parse_the_command_line()
+
         if H: self.host= H
         if p: self.port= p
         if i: self.sid= i
@@ -136,8 +137,9 @@ class Client():
         if t: self.trackname= t
         if s: self.stage= s
         if d: self.debug= d
-        self.S= ServerState()
-        self.R= DriverAction()
+
+        self.S = ServerState()
+        self.R = DriverAction()
         self.setup_connection()
 
     def setup_connection(self):
@@ -233,7 +235,7 @@ class Client():
     def get_servers_input(self):
         '''Server's input is stored in a ServerState object'''
         if not self.so: return
-        sockdata= str()
+        sockdata = str()
 
         while True:
             try:
@@ -249,7 +251,7 @@ class Client():
             elif '***shutdown***' in sockdata:
                 print((("Server has stopped the race on %d. "+
                         "You were in %d place.") %
-                        (self.port,self.S.d['racePos'])))
+                       (self.port,self.S.sensors['racePos'])))
                 self.shutdown()
                 return
             elif '***restart***' in sockdata:
@@ -290,16 +292,16 @@ class Client():
 class ServerState():
     '''What the server is reporting right now.'''
     def __init__(self):
-        self.servstr= str()
-        self.d= dict()
+        self.servstr = str()
+        self.sensors = dict()
 
     def parse_server_str(self, server_string):
         '''Parse the server string.'''
-        self.servstr= server_string.strip()[:-1]
-        sslisted= self.servstr.strip().lstrip('(').rstrip(')').split(')(')
+        self.servstr = server_string.strip()[:-1]
+        sslisted = self.servstr.strip().lstrip('(').rstrip(')').split(')(')
         for i in sslisted:
-            w= i.split(' ')
-            self.d[w[0]]= destringify(w[1:])
+            w = i.split(' ')
+            self.sensors[w[0]]= destringify(w[1:])
 
     def __repr__(self):
         # Comment the next line for raw output:
@@ -345,7 +347,7 @@ class ServerState():
 
         #for k in sorted(self.d): # Use this to get all sensors.
         for k in sensors:
-            if type(self.d.get(k)) is list: # Handle list type data.
+            if type(self.sensors.get(k)) is list: # Handle list type data.
                 if k == 'track': # Nice display for track sensors.
                     strout= str()
                  #  for tsensor in self.d['track']:
@@ -359,11 +361,11 @@ class ServerState():
                  #      else: oc= '_'
                  #      strout+= oc
                  #  strout= ' -> '+strout[:9] +' ' + strout[9] + ' ' + strout[10:]+' <-'
-                    raw_tsens= ['%.1f'%x for x in self.d['track']]
+                    raw_tsens= ['%.1f' % x for x in self.sensors['track']]
                     strout+= ' '.join(raw_tsens[:9])+'_'+raw_tsens[9]+'_'+' '.join(raw_tsens[10:])
                 elif k == 'opponents': # Nice display for opponent sensors.
                     strout= str()
-                    for osensor in self.d['opponents']:
+                    for osensor in self.sensors['opponents']:
                         if   osensor >190: oc= '_'
                         elif osensor > 90: oc= '.'
                         elif osensor > 39: oc= chr(int(osensor/2)+97-19)
@@ -373,71 +375,71 @@ class ServerState():
                         strout+= oc
                     strout= ' -> '+strout[:18] + ' ' + strout[18:]+' <-'
                 else:
-                    strlist= [str(i) for i in self.d[k]]
+                    strlist= [str(i) for i in self.sensors[k]]
                     strout= ', '.join(strlist)
             else: # Not a list type of value.
                 if k == 'gear': # This is redundant now since it's part of RPM.
                     gs= '_._._._._._._._._'
-                    p= int(self.d['gear']) * 2 + 2  # Position
-                    l= '%d'%self.d['gear'] # Label
+                    p= int(self.sensors['gear']) * 2 + 2  # Position
+                    l= '%d'%self.sensors['gear'] # Label
                     if l=='-1': l= 'R'
                     if l=='0':  l= 'N'
                     strout= gs[:p]+ '(%s)'%l + gs[p+3:]
                 elif k == 'damage':
-                    strout= '%6.0f %s' % (self.d[k], bargraph(self.d[k],0,10000,50,'~'))
+                    strout= '%6.0f %s' % (self.sensors[k], bargraph(self.sensors[k], 0, 10000, 50, '~'))
                 elif k == 'fuel':
-                    strout= '%6.0f %s' % (self.d[k], bargraph(self.d[k],0,100,50,'f'))
+                    strout= '%6.0f %s' % (self.sensors[k], bargraph(self.sensors[k], 0, 100, 50, 'f'))
                 elif k == 'speedX':
                     cx= 'X'
-                    if self.d[k]<0: cx= 'R'
-                    strout= '%6.1f %s' % (self.d[k], bargraph(self.d[k],-30,300,50,cx))
+                    if self.sensors[k]<0: cx= 'R'
+                    strout= '%6.1f %s' % (self.sensors[k], bargraph(self.sensors[k], -30, 300, 50, cx))
                 elif k == 'speedY': # This gets reversed for display to make sense.
-                    strout= '%6.1f %s' % (self.d[k], bargraph(self.d[k]*-1,-25,25,50,'Y'))
+                    strout= '%6.1f %s' % (self.sensors[k], bargraph(self.sensors[k] * -1, -25, 25, 50, 'Y'))
                 elif k == 'speedZ':
-                    strout= '%6.1f %s' % (self.d[k], bargraph(self.d[k],-13,13,50,'Z'))
+                    strout= '%6.1f %s' % (self.sensors[k], bargraph(self.sensors[k], -13, 13, 50, 'Z'))
                 elif k == 'z':
-                    strout= '%6.3f %s' % (self.d[k], bargraph(self.d[k],.3,.5,50,'z'))
+                    strout= '%6.3f %s' % (self.sensors[k], bargraph(self.sensors[k], .3, .5, 50, 'z'))
                 elif k == 'trackPos': # This gets reversed for display to make sense.
                     cx='<'
-                    if self.d[k]<0: cx= '>'
-                    strout= '%6.3f %s' % (self.d[k], bargraph(self.d[k]*-1,-1,1,50,cx))
+                    if self.sensors[k]<0: cx= '>'
+                    strout= '%6.3f %s' % (self.sensors[k], bargraph(self.sensors[k] * -1, -1, 1, 50, cx))
                 elif k == 'stucktimer':
-                    if self.d[k]:
-                        strout= '%3d %s' % (self.d[k], bargraph(self.d[k],0,300,50,"'"))
+                    if self.sensors[k]:
+                        strout= '%3d %s' % (self.sensors[k], bargraph(self.sensors[k], 0, 300, 50, "'"))
                     else: strout= 'Not stuck!'
                 elif k == 'rpm':
-                    g= self.d['gear']
+                    g= self.sensors['gear']
                     if g < 0:
                         g= 'R'
                     else:
                         g= '%1d'% g
-                    strout= bargraph(self.d[k],0,10000,50,g)
+                    strout= bargraph(self.sensors[k], 0, 10000, 50, g)
                 elif k == 'angle':
                     asyms= [
                           "  !  ", ".|'  ", "./'  ", "_.-  ", ".--  ", "..-  ",
                           "---  ", ".__  ", "-._  ", "'-.  ", "'\.  ", "'|.  ",
                           "  |  ", "  .|'", "  ./'", "  .-'", "  _.-", "  __.",
                           "  ---", "  --.", "  -._", "  -..", "  '\.", "  '|."  ]
-                    rad= self.d[k]
+                    rad= self.sensors[k]
                     deg= int(rad*180/PI)
                     symno= int(.5+ (rad+PI) / (PI/12) )
                     symno= symno % (len(asyms)-1)
                     strout= '%5.2f %3d (%s)' % (rad,deg,asyms[symno])
                 elif k == 'skid': # A sensible interpretation of wheel spin.
-                    frontwheelradpersec= self.d['wheelSpinVel'][0]
+                    frontwheelradpersec= self.sensors['wheelSpinVel'][0]
                     skid= 0
                     if frontwheelradpersec:
-                        skid= .5555555555*self.d['speedX']/frontwheelradpersec - .66124
+                        skid= .5555555555*self.sensors['speedX'] / frontwheelradpersec - .66124
                     strout= bargraph(skid,-.05,.4,50,'*')
                 elif k == 'slip': # A sensible interpretation of wheel spin.
-                    frontwheelradpersec= self.d['wheelSpinVel'][0]
+                    frontwheelradpersec= self.sensors['wheelSpinVel'][0]
                     slip= 0
                     if frontwheelradpersec:
-                        slip= ((self.d['wheelSpinVel'][2]+self.d['wheelSpinVel'][3]) -
-                              (self.d['wheelSpinVel'][0]+self.d['wheelSpinVel'][1]))
+                        slip= ((self.sensors['wheelSpinVel'][2] + self.sensors['wheelSpinVel'][3]) -
+                               (self.sensors['wheelSpinVel'][0] + self.sensors['wheelSpinVel'][1]))
                     strout= bargraph(slip,-5,150,50,'@')
                 else:
-                    strout= str(self.d[k])
+                    strout= str(self.sensors[k])
             out+= "%s: %s\n" % (k,strout)
         return out
 
@@ -448,15 +450,16 @@ class DriverAction():
     (accel 1)(brake 0)(gear 1)(steer 0)(clutch 0)(focus -90 -45 0 45 90)(meta 0)'''
     def __init__(self):
        self.actionstr= str()
-       # "d" is for data dictionary.
-       self.d= { 'accel':0.2,
+
+       # Initial vallues for effectors
+       self.effectors= {'accel':0.2,
                    'brake':0,
                   'clutch':0,
                     'gear':1,
                    'steer':0,
                    'focus':[-90,-45,0,45,90],
                     'meta':0
-                    }
+                        }
 
     def clip_to_limits(self):
         """There pretty much is never a reason to send the server
@@ -466,35 +469,36 @@ class DriverAction():
         utility function, but it should be used only for non standard
         things or non obvious limits (limit the steering to the left,
         for example). For normal limits, simply don't worry about it."""
-        self.d['steer']= clip(self.d['steer'], -1, 1)
-        self.d['brake']= clip(self.d['brake'], 0, 1)
-        self.d['accel']= clip(self.d['accel'], 0, 1)
-        self.d['clutch']= clip(self.d['clutch'], 0, 1)
-        if self.d['gear'] not in [-1, 0, 1, 2, 3, 4, 5, 6]:
-            self.d['gear']= 0
-        if self.d['meta'] not in [0,1]:
-            self.d['meta']= 0
-        if type(self.d['focus']) is not list or min(self.d['focus'])<-180 or max(self.d['focus'])>180:
-            self.d['focus']= 0
+        self.effectors['steer']= clip(self.effectors['steer'], -1, 1)
+        self.effectors['brake']= clip(self.effectors['brake'], 0, 1)
+        self.effectors['accel']= clip(self.effectors['accel'], 0, 1)
+        self.effectors['clutch']= clip(self.effectors['clutch'], 0, 1)
+        if self.effectors['gear'] not in [-1, 0, 1, 2, 3, 4, 5, 6]:
+            self.effectors['gear']= 0
+        if self.effectors['meta'] not in [0, 1]:
+            self.effectors['meta']= 0
+        if type(self.effectors['focus']) is not list or min(self.effectors['focus'])<-180 or max(self.effectors['focus'])>180:
+            self.effectors['focus']= 0
 
     def __repr__(self):
         self.clip_to_limits()
         out= str()
-        for k in self.d:
+        for k in self.effectors:
             out+= '('+k+' '
-            v= self.d[k]
+            v= self.effectors[k]
             if not type(v) is list:
                 out+= '%.3f' % v
             else:
                 out+= ' '.join([str(x) for x in v])
             out+= ')'
+        #print("out = " + str(out))
         return out
-        return out+'\n'
+        #return out+'\n'
 
     def fancyout(self):
         '''Specialty output for useful monitoring of bot's effectors.'''
         out= str()
-        od= self.d.copy()
+        od= self.effectors.copy()
         od.pop('gear','') # Not interesting.
         od.pop('meta','') # Not interesting.
         od.pop('focus','') # Not interesting. Yet.
