@@ -156,6 +156,7 @@ class TorcsEnv:
     def reset_torcs(self):
        #print("relaunch torcs")
         os.system('pkill torcs')
+        #os.system('sysctl-w vm.drop_caches=3') line i use on my jetson tx1
         time.sleep(0.5)
         if self.vision is True:
             os.system('torcs -nofuel -nodamage -nolaptime -vision &')
