@@ -12,6 +12,7 @@ runs/
 
 # my agents
 run_ddpg.py
+run_ddpg_cnn.py
 agents/
 agents/*
 agents/**
