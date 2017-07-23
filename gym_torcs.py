@@ -105,7 +105,7 @@ class TorcsEnv:
 
         # Termination judgement #########################
         if track.min() < 0:  # Episode is terminated if the car is out of track
-            reward = - 1
+            reward = -100
             self.client.R.effectors['meta'] = 1
 
         if self.terminal_judge_start < self.time_step:  # Episode terminates if the progress of agent is small
