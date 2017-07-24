@@ -12,8 +12,8 @@ import math
 
 
 class TorcsEnv:
-    terminal_judge_start = 500  # Speed limit is applied after this step
-    termination_limit_progress = 5  # [km/h], episode terminates if car is running slower than this limit
+    terminal_judge_start = 100  # Speed limit is applied after this step
+    termination_limit_progress = 1  # [km/h], episode terminates if car is running slower than this limit
     default_speed = 50
 
     initial_reset = True
@@ -95,8 +95,13 @@ class TorcsEnv:
         # Reward setting Here #######################################
         # direction-dependent positive reward
         track = np.array(obs['track'])
+        trackPos = np.array(obs['trackPos'])
         sp = np.array(obs['speedX'])
-        progress = sp * np.cos(obs['angle'])
+        damage = np.array(obs['damage'])
+        #rpm = np.array(obs['rpm'])
+
+        #progress = sp * np.cos(obs['angle']) #OLD
+        progress = sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
         reward = progress
 
         # collision detection
@@ -104,8 +109,9 @@ class TorcsEnv:
             reward = -1
 
         # Termination judgement #########################
-        if track.min() < 0:  # Episode is terminated if the car is out of track
-            reward = -100
+        #if track.min() < 0:  # Episode is terminated if the car is out of track
+        if (abs(track.any()) > 1 or abs(trackPos) > 1):
+            reward = -200
             self.client.R.effectors['meta'] = 1
 
         if self.terminal_judge_start < self.time_step:  # Episode terminates if the progress of agent is small
