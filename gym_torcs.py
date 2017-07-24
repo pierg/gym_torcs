@@ -112,13 +112,18 @@ class TorcsEnv:
         #if track.min() < 0:  # Episode is terminated if the car is out of track
         if (abs(track.any()) > 1 or abs(trackPos) > 1):
             reward = -200
+            print("META = 1 ... out of track")
             self.client.R.effectors['meta'] = 1
 
         if self.terminal_judge_start < self.time_step:  # Episode terminates if the progress of agent is small
             if progress < self.termination_limit_progress:
+                reward -= 100
+                print("META = 1 ... out of track")
                 self.client.R.effectors['meta'] = 1
 
         if np.cos(obs['angle']) < 0:  # Episode is terminated if the agent runs backward
+            reward -= 100
+            print("META = 1 ... Running backwards")
             self.client.R.effectors['meta'] = 1
 
         if self.client.R.effectors['meta'] is 1:  # Send a reset signal
