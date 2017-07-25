@@ -44,7 +44,7 @@ class TorcsEnv:
             low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf, 0])
             self.observation_space = spaces.Box(low=low, high=high)
 
-    def step(self, a_t):
+    def step(self, a_t, early_stop):
 
         ## Create a desiered action with Effectors listed in same order as : arxiv.org/pdf/1304.1672.pdf table 3
         torcs_action = self.client.R.effectors # this is pass by reference so updating it updates the one in snakeoil
@@ -85,20 +85,20 @@ class TorcsEnv:
 
         # Get the current full-observation from torcs
         # containing all 19 sensors from arxiv.org/pdf/1304.1672.pdf table 1/2 as key : value
-        self.observation = self.scale_observation(self.client.S.sensors)
+        self.observation = self.client.S.sensors
 
-        reward = self.calculate_reward(self.observation, prev_observation)
+        reward = self.calculate_reward(self.observation, prev_observation, early_stop)
         done = (self.client.R.effectors['meta'] == 1)
-        return self.observation, reward, done, {}
+        return self.scale_observation(self.observation), reward, done, {}
 
-    def calculate_reward(self, obs, obs_pre):
+    def calculate_reward(self, obs, obs_pre, early_stop):
         # Reward setting Here #######################################
         # direction-dependent positive reward
         track = np.array(obs['track'])
         trackPos = np.array(obs['trackPos'])
         sp = np.array(obs['speedX'])
         damage = np.array(obs['damage'])
-        #rpm = np.array(obs['rpm'])
+        rpm = np.array(obs['rpm'])
 
         #progress = sp * np.cos(obs['angle']) #OLD
         progress = sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
@@ -110,19 +110,19 @@ class TorcsEnv:
 
         # Termination judgement #########################
         #if track.min() < 0:  # Episode is terminated if the car is out of track
-        if (abs(track.any()) > 1 or abs(trackPos) > 1):
+        if (abs(track.any()) > 1 or abs(trackPos) > 1 and early_stop):  # Episode is terminated if the car is out of track
             reward = -200
             print("META = 1 ... out of track")
             self.client.R.effectors['meta'] = 1
 
         if self.terminal_judge_start < self.time_step:  # Episode terminates if the progress of agent is small
-            if progress < self.termination_limit_progress:
-                reward -= 100
-                print("META = 1 ... out of track")
+            if((progress < self.termination_limit_progress) and early_stop ):
+                #reward = -50
+                print("META = 1 ... Minimal Progress!")
                 self.client.R.effectors['meta'] = 1
 
         if np.cos(obs['angle']) < 0:  # Episode is terminated if the agent runs backward
-            reward -= 100
+            reward = -200
             print("META = 1 ... Running backwards")
             self.client.R.effectors['meta'] = 1
 
