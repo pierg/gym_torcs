@@ -75,7 +75,7 @@ class TorcsEnv:
 
 
         # Save the privious full-observation from torcs for the reward calculation
-        prev_observation = self.scale_observation(copy.deepcopy(self.client.S.sensors))
+        prev_observation = copy.deepcopy(self.client.S.sensors)
 
         # Apply the Agent's action into torcs
         self.client.respond_to_server()
@@ -85,11 +85,14 @@ class TorcsEnv:
 
         # Get the current full-observation from torcs
         # containing all 19 sensors from arxiv.org/pdf/1304.1672.pdf table 1/2 as key : value
-        self.observation = self.scale_observation(self.client.S.sensors)
+        self.observation = self.client.S.sensors
 
+        # calculate reward
         reward = self.calculate_reward(self.observation, prev_observation, early_stop)
+
+        obs = self.scale_observation(self.client.S.sensors)
         done = (self.client.R.effectors['meta'] == 1)
-        return self.observation, reward, done, {}
+        return obs, reward, done, {}
 
     def calculate_reward(self, obs, obs_pre, early_stop):
         # Reward setting Here #######################################
@@ -122,7 +125,6 @@ class TorcsEnv:
                 self.client.R.effectors['meta'] = 1
 
         if np.cos(obs['angle']) < 0:  # Episode is terminated if the agent runs backward
-            reward = -200
             print("META = 1 ... Running backwards")
             self.client.R.effectors['meta'] = 1
 
@@ -203,10 +205,10 @@ class TorcsEnv:
         #raw_obs['lastLapTime']
         raw_obs['opponents'] = np.array(raw_obs['opponents'])/200
         #raw_obs['racePos']
-        #raw_obs['rpm'] #TODO if gears
-        raw_obs['speedX'] = raw_obs['speedX'] / self.default_speed
-        raw_obs['speedY'] = raw_obs['speedY'] / self.default_speed
-        raw_obs['speedZ'] = raw_obs['speedZ'] / self.default_speed
+        raw_obs['rpm'] = raw_obs['rpm']/10000
+        raw_obs['speedX'] = raw_obs['speedX'] / 300
+        raw_obs['speedY'] = raw_obs['speedY'] / 300
+        raw_obs['speedZ'] = raw_obs['speedZ'] / 300
         raw_obs['track'] = np.array(raw_obs['track']) / 200
         #raw_obs['trackPos'] = raw_obs['trackPos'] # should not be input to actor/critic, only in reward?!?!
         raw_obs['wheelSpinVel'] = np.array(raw_obs['wheelSpinVel']) / 100; #TODO Why? was like this in prev version?
@@ -217,7 +219,54 @@ class TorcsEnv:
 
         return raw_obs
 
-   
+
+    def make_observaton(self, raw_obs):
+        if self.vision is False:
+            names = ['focus',
+                     'speedX', 'speedY', 'speedZ', 'angle', 'damage',
+                     'opponents',
+                     'rpm',
+                     'track',
+                     'trackPos',
+                     'wheelSpinVel']
+            Observation = col.namedtuple('Observaion', names)
+            return Observation(focus=np.array(raw_obs['focus'], dtype=np.float32)/200.,
+                               speedX=np.array(raw_obs['speedX'], dtype=np.float32)/300.0,
+                               speedY=np.array(raw_obs['speedY'], dtype=np.float32)/300.0,
+                               speedZ=np.array(raw_obs['speedZ'], dtype=np.float32)/300.0,
+                               angle=np.array(raw_obs['angle'], dtype=np.float32)/3.1416,
+                               damage=np.array(raw_obs['damage'], dtype=np.float32),
+                               opponents=np.array(raw_obs['opponents'], dtype=np.float32)/200.,
+                               rpm=np.array(raw_obs['rpm'], dtype=np.float32)/10000,
+                               track=np.array(raw_obs['track'], dtype=np.float32)/200.,
+                               trackPos=np.array(raw_obs['trackPos'], dtype=np.float32)/1.,
+                               wheelSpinVel=np.array(raw_obs['wheelSpinVel'], dtype=np.float32))
+        else:
+            names = ['focus',
+                     'speedX', 'speedY', 'speedZ', 'angle',
+                     'opponents',
+                     'rpm',
+                     'track',
+                     'trackPos',
+                     'wheelSpinVel',
+                     'img']
+            Observation = col.namedtuple('Observaion', names)
+
+            # Get RGB from observation
+            image_rgb = self.obs_vision_to_image_rgb(raw_obs[names[8]])
+
+            return Observation(focus=np.array(raw_obs['focus'], dtype=np.float32)/200.,
+                               speedX=np.array(raw_obs['speedX'], dtype=np.float32)/self.default_speed,
+                               speedY=np.array(raw_obs['speedY'], dtype=np.float32)/self.default_speed,
+                               speedZ=np.array(raw_obs['speedZ'], dtype=np.float32)/self.default_speed,
+                               opponents=np.array(raw_obs['opponents'], dtype=np.float32)/200.,
+                               rpm=np.array(raw_obs['rpm'], dtype=np.float32),
+                               track=np.array(raw_obs['track'], dtype=np.float32)/200.,
+                               trackPos=np.array(raw_obs['trackPos'], dtype=np.float32)/1.,
+                               wheelSpinVel=np.array(raw_obs['wheelSpinVel'], dtype=np.float32),
+                               img=image_rgb)
+
+
 
 
     """def make_observaton(self, raw_obs):
