@@ -75,7 +75,7 @@ class TorcsEnv:
 
 
         # Save the privious full-observation from torcs for the reward calculation
-        prev_observation = copy.deepcopy(self.client.S.sensors)
+        prev_observation = self.scale_observation(copy.deepcopy(self.client.S.sensors))
 
         # Apply the Agent's action into torcs
         self.client.respond_to_server()
@@ -85,11 +85,11 @@ class TorcsEnv:
 
         # Get the current full-observation from torcs
         # containing all 19 sensors from arxiv.org/pdf/1304.1672.pdf table 1/2 as key : value
-        self.observation = self.client.S.sensors
+        self.observation = self.scale_observation(self.client.S.sensors)
 
         reward = self.calculate_reward(self.observation, prev_observation, early_stop)
         done = (self.client.R.effectors['meta'] == 1)
-        return self.scale_observation(self.observation), reward, done, {}
+        return self.observation, reward, done, {}
 
     def calculate_reward(self, obs, obs_pre, early_stop):
         # Reward setting Here #######################################
@@ -217,6 +217,7 @@ class TorcsEnv:
 
         return raw_obs
 
+   
 
 
     """def make_observaton(self, raw_obs):
