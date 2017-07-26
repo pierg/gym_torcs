@@ -170,9 +170,9 @@ class TorcsEnv:
         #os.system('sysctl-w vm.drop_caches=3') line i use on my jetson tx1
         time.sleep(0.5)
         if self.vision is True:
-            os.system('torcs -nofuel -nodamage -nolaptime -vision &')
+            os.system('torcs -nofuel -nolaptime -vision &')
         else:
-            os.system('torcs -nofuel -nodamage -nolaptime &')
+            os.system('torcs -nofuel -nolaptime &')
         time.sleep(0.5)
         os.system('sh autostart.sh')
         time.sleep(0.5)
