@@ -14,7 +14,7 @@ import math
 class TorcsEnv:
     terminal_judge_start = 100  # Speed limit is applied after this step
     termination_limit_progress = 1  # [km/h], episode terminates if car is running slower than this limit
-    default_speed = 50
+    default_speed = 300
 
     initial_reset = True
 
@@ -30,7 +30,7 @@ class TorcsEnv:
         # start torcs! (missleadning name!)
         self.reset_torcs()
 
-        if throttle is False:
+        """ if throttle is False:
             self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,))
         else:
             self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,))
@@ -42,7 +42,7 @@ class TorcsEnv:
         else:
             high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf, 255])
             low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf, 0])
-            self.observation_space = spaces.Box(low=low, high=high)
+            self.observation_space = spaces.Box(low=low, high=high)"""
 
     def step(self, a_t, early_stop):
 
@@ -56,12 +56,12 @@ class TorcsEnv:
         torcs_action.update({'brake': a_t[2]})
 
         # 3 clutch in [0, 1]
-        # not implemented since automatic transmission
+        # not implemented  ????
         torcs_action.update({'clutch': 0})
 
         # 4. gear in -1, 0, 1, ... , 6
-        # not implemented since automatic transmission
-        torcs_action.update({'gear': 1})
+        gear = self.get_gear() #TODO this is just since the real automatic doesnt seem to work!!!!
+        torcs_action.update({'gear': gear})
 
         # 5. steer in [-1, 1]
         torcs_action.update({'steer': a_t[0]})
@@ -90,7 +90,9 @@ class TorcsEnv:
         # calculate reward
         reward = self.calculate_reward(self.observation, prev_observation, early_stop)
 
+        # scaled obs to send to agent
         obs = self.scale_observation(self.client.S.sensors)
+
         done = (self.client.R.effectors['meta'] == 1)
         return obs, reward, done, {}
 
@@ -206,9 +208,9 @@ class TorcsEnv:
         raw_obs['opponents'] = np.array(raw_obs['opponents'])/200
         #raw_obs['racePos']
         raw_obs['rpm'] = raw_obs['rpm']/10000
-        raw_obs['speedX'] = raw_obs['speedX'] / 300
-        raw_obs['speedY'] = raw_obs['speedY'] / 300
-        raw_obs['speedZ'] = raw_obs['speedZ'] / 300
+        raw_obs['speedX'] = raw_obs['speedX'] / self.default_speed
+        raw_obs['speedY'] = raw_obs['speedY'] / self.default_speed
+        raw_obs['speedZ'] = raw_obs['speedZ'] / self.default_speed
         raw_obs['track'] = np.array(raw_obs['track']) / 200
         #raw_obs['trackPos'] = raw_obs['trackPos'] # should not be input to actor/critic, only in reward?!?!
         raw_obs['wheelSpinVel'] = np.array(raw_obs['wheelSpinVel']) / 100; #TODO Why? was like this in prev version?
@@ -218,3 +220,18 @@ class TorcsEnv:
             raw_obs['img'] = self.obs_vision_to_image_rgb(raw_obs['img'])
 
         return raw_obs
+
+    def get_gear(self):
+        speedX = self.client.S.sensors['speedX'] * self.default_speed
+        gear = 1
+        if speedX > 50:
+            gear = 2
+        if speedX > 80:
+            gear = 3
+        if speedX > 110:
+            gear = 4
+        if speedX > 140:
+            gear = 5
+        if speedX > 170:
+            gear = 6
+        return gear
