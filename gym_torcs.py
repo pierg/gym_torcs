@@ -91,7 +91,7 @@ class TorcsEnv:
         reward = self.calculate_reward(self.observation, prev_observation, early_stop)
 
         # scaled obs to send to agent
-        obs = self.scale_observation(self.client.S.sensors)
+        obs = self.scale_observation(copy.deepcopy(self.client.S.sensors))
 
         done = (self.client.R.effectors['meta'] == 1)
         return obs, reward, done, {}
@@ -111,7 +111,7 @@ class TorcsEnv:
 
         # collision detection
         if obs['damage'] - obs_pre['damage'] > 0:
-            reward = -1
+            reward = -obs['damage']
 
         # Termination judgement #########################
         #if track.min() < 0:  # Episode is terminated if the car is out of track
@@ -222,7 +222,7 @@ class TorcsEnv:
         return raw_obs
 
     def get_gear(self):
-        speedX = self.client.S.sensors['speedX'] * self.default_speed
+        speedX = self.client.S.sensors['speedX']
         gear = 1
         if speedX > 50:
             gear = 2
