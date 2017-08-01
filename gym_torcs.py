@@ -57,7 +57,8 @@ class TorcsEnv:
         torcs_action.update({'steer': a_t[0]})
 
         # 6. focus in [-90,90] (list of 5 values)
-        torcs_action.update({'focus': [-90,-45,0,45,90]})
+        #torcs_action.update({'focus': [-90,-45,0,45,90]})
+        torcs_action.update({'focus': [-50, -25, 0, 25, 50]}) # testing more forward vision!
 
         # 7. meta in 0,1 (restart race or not)
         torcs_action.update({'meta': 0})
@@ -94,6 +95,8 @@ class TorcsEnv:
         sp = np.array(obs['speedX'])
         damage = np.array(obs['damage'])
         rpm = np.array(obs['rpm'])
+
+        penalty = 0
 
         #progress = sp * np.cos(obs['angle']) #OLD
         progress = 3*sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
