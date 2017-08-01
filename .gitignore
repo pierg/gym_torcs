@@ -9,6 +9,11 @@ vtorcs-RL-color/**
 
 runs/
 
+TorcsProjectVersion
+agent_version
+gym_torcs_version
+
+
 
 # my agents
 run_ddpg.py
