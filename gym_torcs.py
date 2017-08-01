@@ -30,19 +30,6 @@ class TorcsEnv:
         # start torcs! (missleadning name!)
         self.reset_torcs()
 
-        """ if throttle is False:
-            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,))
-        else:
-            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,))
-
-        if vision is False:
-            high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf])
-            low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf])
-            self.observation_space = spaces.Box(low=low, high=high)
-        else:
-            high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf, 255])
-            low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf, 0])
-            self.observation_space = spaces.Box(low=low, high=high)"""
 
     def step(self, a_t, early_stop):
 
@@ -60,7 +47,10 @@ class TorcsEnv:
         torcs_action.update({'clutch': 0})
 
         # 4. gear in -1, 0, 1, ... , 6
-        gear = self.get_gear() #TODO this is just since the real automatic doesnt seem to work!!!!
+        if(self.gear_change):
+            gear = self.get_gear() #TODO this is just since the real automatic doesnt seem to work!!!!
+        else:
+            gear = 1
         torcs_action.update({'gear': gear})
 
         # 5. steer in [-1, 1]
