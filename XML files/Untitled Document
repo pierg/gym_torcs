@@ -1,0 +1,16 @@
+
+# to set config that does render graphics:
+sudo cp /home/kloek/Documents/Thesis_work/gym_torcs/XML\ files/practice_normal.xml /home/kloek/.torcs/config/raceman/practice.xml
+sudo cp /home/kloek/Documents/Thesis_work/gym_torcs/XML\ files/practice_normal.xml /usr/local/share/games/torcs/config/raceman/practice.xml
+
+# to set config that doesnt render graphics:
+sudo cp /home/kloek/Documents/Thesis_work/gym_torcs/XML\ files/practice_no_graphics.xml /home/kloek/.torcs/config/raceman/practice.xml
+sudo cp /home/kloek/Documents/Thesis_work/gym_torcs/XML\ files/practice_no_graphics.xml /usr/local/share/games/torcs/config/raceman/practice.xml
+
+# big graphics, not for vision
+sudo cp /home/kloek/Documents/Thesis_work/gym_torcs/XML\ files/screen_normal.xml /home/kloek/.torcs/config/screen.xml
+sudo cp /home/kloek/Documents/Thesis_work/gym_torcs/XML\ files/screen_normal.xml /usr/local/share/games/torcs/config/screen.xml
+
+# small graphics, for vision
+sudo cp /home/kloek/Documents/Thesis_work/gym_torcs/XML\ files/screen_64.xml /home/kloek/.torcs/config/screen.xml
+sudo cp /home/kloek/Documents/Thesis_work/gym_torcs/XML\ files/screen_64.xml /usr/local/share/games/torcs/config/screen.xml
