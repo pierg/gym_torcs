@@ -56,9 +56,9 @@ class TorcsEnv:
         # 5. steer in [-1, 1]
         torcs_action.update({'steer': a_t[0]})
 
-        # 6. focus in [-90,90] (list of 5 values)
+        # 6. focus in [-90,90] (list of 5 values) 1. should only be set once, 2. not reliable as sensors!
         #torcs_action.update({'focus': [-90,-45,0,45,90]})
-        torcs_action.update({'focus': [-50, -25, 0, 25, 50]}) # testing more forward vision!
+        #torcs_action.update({'focus': [-50, -25, 0, 25, 50]}) # testing more forward vision!
 
         # 7. meta in 0,1 (restart race or not)
         torcs_action.update({'meta': 0})
