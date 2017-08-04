@@ -104,21 +104,23 @@ class TorcsEnv:
         #rpm = np.array(obs['rpm'])
 
         dist = obs['distFromStart'] - obs_pre['distFromStart']
-        forward_sp = sp * np.cos(obs['angle']) # progress is only counted in "forward" driving!!!
-        #progress = sp * np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
-        progress = dist
+        progress_old = sp * np.cos(obs['angle'])  - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos']) # OLD
+        progress = sp * np.cos(obs['angle']) + dist
+
+        ### penalty =  -(damage) -( "Y" speed) - ( dist from center)
+        penalty = -(obs['damage'] - obs_pre['damage']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
 
 
-        #reward = progress
+        reward_old = progress_old
 
-        # collision detection
-        #if obs['damage'] - obs_pre['damage'] > 0:
-            #reward = -(obs['damage'] - obs_pre['damage'])
-        penalty = -(obs['damage'] - obs_pre['damage'])
+        # collision detection OLD
+        if obs['damage'] - obs_pre['damage'] > 0:
+            reward_old = -(obs['damage'] - obs_pre['damage'])
+
 
         # Termination judgement
         if (abs(track.any()) > 1 or abs(trackPos) > 1 and early_stop):  # Episode is terminated if the car is out of track
-            #reward = -200
+            reward_old = -200
             penalty -= 200
             print("META = 1 ... out of track")
             self.client.R.effectors['meta'] = 1
@@ -140,7 +142,7 @@ class TorcsEnv:
 
         reward = progress + penalty
         self.time_step += 1
-        return [reward, progress, penalty]
+        return [reward, progress, penalty, reward_old]
 
     def reset(self, relaunch=False):
         #print("Reset")
