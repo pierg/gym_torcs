@@ -99,18 +99,23 @@ class TorcsEnv:
 
         # Reward setting Here #######################################
         # direction-dependent positive reward
+
         track = np.array(obs['track'])
         trackPos = np.array(obs['trackPos'])
         sp = np.array(obs['speedX'])
+
         #damage = np.array(obs['damage'])
         #rpm = np.array(obs['rpm'])
 
-        dist = obs['distFromStart'] - obs_pre['distFromStart']
-        progress_old = sp * np.cos(obs['angle'])  - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos']) # OLD
-        progress = sp * np.cos(obs['angle']) + dist
 
-        ### penalty =  -(damage) -( "Y" speed) - ( dist from center)
-        penalty = -(obs['damage'] - obs_pre['damage']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
+        progress_old = sp * np.cos(obs['angle'])  - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos']) # OLD
+
+        dist = obs['distFromStart'] - obs_pre['distFromStart']
+        #progress = sp * np.cos(obs['angle']) + dist
+        progress = dist
+
+        ### penalty =  -(damage) -( "Y" speed) - ( dist from center * speed)
+        penalty = -(obs['damage'] - obs_pre['damage']) #- np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
 
 
         reward_old = progress_old
@@ -143,7 +148,7 @@ class TorcsEnv:
             self.client.respond_to_server()
 
         a = self.reward_shift
-        reward = 2*a*progress + (1-a)*penalty
+        reward = progress + penalty
         self.time_step += 1
         return [reward, progress, penalty, reward_old]
 
