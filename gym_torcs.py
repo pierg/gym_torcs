@@ -19,13 +19,15 @@ class TorcsEnv:
     initial_reset = True
 
 
-    def __init__(self, vision=False, throttle=False, gear_change=False):
+    def __init__(self, vision=False, throttle=False, gear_change=False, reward_shift=0.5):
 
         self.vision = vision
         self.throttle = throttle
         self.gear_change = gear_change
 
         self.initial_run = True
+
+        self.reward_shift = reward_shift
 
         # start torcs! (missleadning name!)
         self.reset_torcs()
@@ -140,7 +142,8 @@ class TorcsEnv:
             self.initial_run = False
             self.client.respond_to_server()
 
-        reward = progress + penalty
+        a = self.reward_shift
+        reward = 2*a*progress + (1-a)*penalty
         self.time_step += 1
         return [reward, progress, penalty, reward_old]
 
