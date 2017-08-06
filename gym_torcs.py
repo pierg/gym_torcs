@@ -95,8 +95,6 @@ class TorcsEnv:
         # everything that is negative should decrease penalty!
         # reward = progress - penalty!!!
 
-        penalty = 0 # for safety critic
-
         # Reward setting Here #######################################
         # direction-dependent positive reward
 
@@ -110,12 +108,12 @@ class TorcsEnv:
 
         progress_old = sp * np.cos(obs['angle'])  - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos']) # OLD
 
-        dist = obs['distFromStart'] - obs_pre['distFromStart']
+        #dist = obs['distFromStart'] - obs_pre['distFromStart']
         #progress = sp * np.cos(obs['angle']) + dist
-        progress = dist
+        progress = sp * np.cos(obs['angle'])
 
         ### penalty =  -(damage) -( "Y" speed) - ( dist from center * speed)
-        penalty = -(obs['damage'] - obs_pre['damage']) #- np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
+        penalty = -(obs['damage'] - obs_pre['damage']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
 
 
         reward_old = progress_old
@@ -128,14 +126,14 @@ class TorcsEnv:
         # Termination judgement
         if (abs(track.any()) > 1 or abs(trackPos) > 1 and early_stop):  # Episode is terminated if the car is out of track
             reward_old = -200
-            penalty -= 200
+            penalty = -progress -200
             print("META = 1 ... out of track")
             self.client.R.effectors['meta'] = 1
 
         if self.terminal_judge_start < self.time_step:  # Episode terminates if the progress of agent is small
             if((progress < self.termination_limit_progress) and early_stop ):
                 #reward = -50
-                penalty -= 50
+                #penalty -= 50
                 print("META = 1 ... Minimal Progress!")
                 self.client.R.effectors['meta'] = 1
 
