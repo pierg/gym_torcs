@@ -93,13 +93,12 @@ class TorcsEnv:
         track = np.array(obs['track'])
         trackPos = np.array(obs['trackPos'])
         sp = np.array(obs['speedX'])
-        damage = np.array(obs['damage'])
-        rpm = np.array(obs['rpm'])
 
-        #progress = sp * np.cos(obs['angle']) #OLD
+        # OLD reward function, kept for refrence
         progress_old = 3*sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
         reward_old = progress_old
 
+        # New reward function (parts)
         progress = 3*sp*np.cos(obs['angle'])
         penalty = -(obs['damage'] - obs_pre['damage']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
 
