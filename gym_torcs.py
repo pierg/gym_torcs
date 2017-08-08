@@ -96,26 +96,27 @@ class TorcsEnv:
         damage = np.array(obs['damage'])
         rpm = np.array(obs['rpm'])
 
-        penalty = 0
-
         #progress = sp * np.cos(obs['angle']) #OLD
-        progress = 3*sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
-        reward = progress
+        progress_old = 3*sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
+        reward_old = progress_old
+
+        progress = 3*sp*np.cos(obs['angle'])
+        penalty = -(obs['damage'] - obs_pre['damage']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
 
         # collision detection
         if obs['damage'] - obs_pre['damage'] > 0:
-            reward = -(obs['damage'] - obs_pre['damage'])
+            reward_old = -(obs['damage'] - obs_pre['damage'])
 
         # Termination judgement #########################
         #if track.min() < 0:  # Episode is terminated if the car is out of track
         if (abs(track.any()) > 1 or abs(trackPos) > 1 and early_stop):  # Episode is terminated if the car is out of track
-            reward = -200
+            reward_old = -200
+            penalty -= progress
             print("META = 1 ... out of track")
             self.client.R.effectors['meta'] = 1
 
         if self.terminal_judge_start < self.time_step:  # Episode terminates if the progress of agent is small
-            if((progress < self.termination_limit_progress) and early_stop ):
-                reward = -50
+            if((progress_old < self.termination_limit_progress) and early_stop ):
                 print("META = 1 ... Minimal Progress!")
                 self.client.R.effectors['meta'] = 1
 
@@ -127,8 +128,9 @@ class TorcsEnv:
             self.initial_run = False
             self.client.respond_to_server()
 
+        reward = progress + penalty
         self.time_step += 1
-        return reward
+        return [reward, progress, penalty, reward_old]
 
     def reset(self, relaunch=False):
         #print("Reset")
