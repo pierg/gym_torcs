@@ -17,7 +17,7 @@ gym_torcs_version
 
 # my agents
 run_ddpg.py
-run_ddpg_cnn.py
+config.py
 agents/
 agents/*
 agents/**
